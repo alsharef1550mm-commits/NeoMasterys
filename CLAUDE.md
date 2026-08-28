@@ -13,10 +13,19 @@ fully-supported secondary language, not an afterthought.
 ## Architecture
 
 - **Framework**: Next.js (App Router), TypeScript, Tailwind CSS v4.
-- `src/app/` — routes, layouts, `globals.css`.
-- `src/components/` — modular, reusable UI components.
+- `src/app/` — routes, layouts, `globals.css`. Routes: `/`, `/services`,
+  `/portfolio`, `/about`, `/contact` — the latter four are currently
+  `ComingSoon` placeholders (see `src/components/ComingSoon.tsx`) so Navbar/
+  Footer links resolve; only `/` has its full content built out.
+- `src/components/layout/` — site-wide chrome (`Navbar.tsx`, `Footer.tsx`),
+  wired into `src/app/layout.tsx` around `{children}`. Other reusable UI
+  lives directly under `src/components/`.
 - `src/context/LanguageContext.tsx` — the bilingual provider (see below).
-- `src/data/` — static content and copy, notably `translations.ts`.
+- `src/data/` — static content and copy: `translations.ts` (bilingual
+  dictionary), `site-config.ts` (non-translated contact/social values —
+  email, phone, links; these aren't language-dependent so they don't belong
+  in `translations.ts`), `service-icons.ts` (service `id` → `lucide-react`
+  icon map).
 - `src/types/` — shared TypeScript types (`Language`, `Translations`, etc.).
 - `src/lib/utils.ts` — shared helpers, including the `cn()` class-merging
   helper (`clsx` + `tailwind-merge`).
@@ -53,6 +62,14 @@ fully-supported secondary language, not an afterthought.
   - `border-s-*` / `border-e-*` and `rounded-s-*` / `rounded-e-*` where relevant
   - Only reach for a physical utility when a value must stay fixed regardless
     of direction (e.g. an icon that shouldn't flip).
+- **Known gotcha: don't pair `rtl:`/`ltr:` variants with `translate-x-*` (or
+  other transform-family) utilities.** In this Tailwind v4 setup, the
+  variant-scoped class doesn't reliably update the element's computed
+  `translate` when only the active class swaps (confirmed via computed-style
+  inspection while debugging the Navbar's mobile drawer — it got stuck
+  off-screen). Compute the transform from `dir` in JS and apply it as an
+  inline `style` instead, as `src/components/layout/Navbar.tsx` does for its
+  mobile drawer.
 
 ## Fonts
 

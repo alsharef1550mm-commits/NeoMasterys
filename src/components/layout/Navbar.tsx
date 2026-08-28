@@ -22,9 +22,10 @@ function isActivePath(pathname: string, href: string) {
 }
 
 export function Navbar() {
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const closedOffset = dir === "rtl" ? "-100%" : "100%";
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
@@ -89,12 +90,16 @@ export function Navbar() {
         />
       )}
 
+      {/* Inline transform, not Tailwind's rtl:/ltr: translate-x-* utilities:
+          those compile to a var()-based `translate` property that, in this
+          Tailwind v4 setup, does not update when only the variant class
+          swaps (confirmed via computed-style inspection) — the drawer gets
+          stuck off-screen. Deriving the offset from `dir` directly sidesteps
+          the cascade entirely. */}
       <div
         id="mobile-menu"
-        className={cn(
-          "fixed inset-y-0 end-0 z-40 flex w-72 max-w-[80vw] flex-col gap-6 border-s border-border bg-background p-6 shadow-2xl transition-transform duration-300 ease-in-out md:hidden",
-          isOpen ? "translate-x-0" : "ltr:translate-x-full rtl:-translate-x-full"
-        )}
+        style={{ transform: `translateX(${isOpen ? "0" : closedOffset})` }}
+        className="fixed inset-y-0 end-0 z-40 flex w-72 max-w-[80vw] flex-col gap-6 border-s border-border bg-background p-6 shadow-2xl transition-transform duration-300 ease-in-out md:hidden"
       >
         <nav className="flex flex-col gap-1 pt-14">
           {NAV_ITEMS.map((item) => {
